@@ -8,7 +8,7 @@ import (
 
 // TODO : (implements the test)
 
-func Test1(t *testing.T){
+func TestRandom(t *testing.T){
 
 	println(-1 << 56)
 
@@ -29,4 +29,25 @@ func Test1(t *testing.T){
 	// 00000000 00000000 00000000 00000011
 
 	println(strings.Trim("1212sfadfsf23fs12", "0123456789"))
+
+}
+
+func TestASCII(t *testing.T){
+
+	s := "htis is a 你好word"
+
+	println(isASCII(s))
+
+	println(toASCII(s))
+}
+
+
+func TestParse(t *testing.T) {
+
+	b := []byte("htis is a \x00 你好word")
+
+	p := &parser{}
+
+	println(p.parseString(b))
+
 }
