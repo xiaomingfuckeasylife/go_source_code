@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"strconv"
 	"strings"
+	"fmt"
+	"time"
 )
 
 // check if str contains any byte that is over 127 which is the boundary of ASCII[-128,127]
@@ -199,3 +201,92 @@ func (f *formatter) formatOctal(b []byte , x int64) {
 	f.formatString(b,s)
 }
 
+// TODO: the code bellow is absolutely copy by hand .
+// TODO:just typinng we can still learn a lot remember. do not take anything for granted .
+
+// parsePAXTime takes a string of the form %d.%d as described in the PAX
+// specification .Note that this implementation allows for negative timestamps,
+// which is allowed for by the PAX specification , but not always portable.
+func parsePAXTime(s string) (time.Time,error) {
+	const maxNanoSecondDigits = 9
+
+	// Split string into seconds and sub-seconds parts .
+	ss , sn := s , ""
+	// by the way it seems to me the strings.IndexByte and strings.Index does not has much difference .
+	if pos := strings.IndexByte(ss ,'.');pos >= 0 {
+		ss  , sn = ss[:pos] , ss[pos+1:]
+	}
+
+	// Parse the seconds
+	secs , err := strconv.ParseInt(ss,10,64)
+
+	if err != nil {
+		return time.Time{} , ErrHeader
+	}
+
+	if len(sn) == 0 {
+		return time.Unix(secs,0) ,  nil
+	}
+
+	if strings.Trim(sn,"0123456789") != "" {
+		return time.Time{} ,ErrHeader
+	}
+
+	if len(sn) < maxNanoSecondDigits {
+		sn += strings.Repeat("0" , maxNanoSecondDigits - len(sn)) // Right pad
+	}else {
+		sn = sn[:maxNanoSecondDigits]								 // Right truncate
+	}
+
+	nsecs , _ := strconv.ParseInt(sn , 10 , 64) // Must succeed
+	if len(ss) > 0 && ss[0] == '-' {
+		return time.Unix(secs , -1 * nsecs),nil
+	}
+	return time.Unix(secs,nsecs),nil
+}
+
+// parsePAXRecord parses the input PAX record stirng into a key-value pair.
+// If parsing is successful . it will slice off the currently read record and
+// return the remainder as r.
+//
+// A PAX record is of the following form .
+// `%d = %s=%s\n`%(size , key , value)
+func parsePAXRecords(s string) (k , v , r string , err error){
+	sp := strings.IndexByte(s , ' ')
+	if sp == -1 {
+		return "", "", s , ErrHeader
+	}
+
+	n , perr := strconv.ParseInt(s[:sp], 10 , 0)
+
+	if perr != nil || n < 5 || int64(len(s)) < n {
+		return "" , "" , s , ErrHeader
+	}
+
+	rec , nl , rem := s[sp+1:n-1] , s[n-1:n] , s[n:]
+	if nl != "\n" {
+		return "","",s , ErrHeader
+	}
+
+	eq := strings.IndexByte(rec , '=')
+
+	if eq == -1 {
+		return "" , "" , s , ErrHeader
+	}
+	return rec[:eq] , rec[eq+1:],rem , nil
+}
+
+// formatPAXRecord formats a single PAX record , prefixing it with the appropriate length
+func formatPAXRecord(k,v string) string {
+	const padding = 3 // Extra padding for ' ' , '=' , and '\n'
+	size := len(k) + len(v) + padding
+	size += len(strconv.Itoa(size))		// integer size
+	record := fmt.Sprintf("%d %s=%s\n",size,k , v)
+
+	// Final adjestment if adding size field increased the record size.
+	if len(record) != size {
+		size = len(record)
+		record = fmt.Sprintf("%d %s=%s\n",size,k , v)
+	}
+	return record
+}

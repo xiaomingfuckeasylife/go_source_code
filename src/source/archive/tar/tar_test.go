@@ -6,13 +6,20 @@ import (
 	"strings"
 	"fmt"
 	"strconv"
+	"math"
 )
+
+
+func Test20170807(t *testing.T){
+	//println(math.MaxInt64 ) // 9223372036854775807
+	//println( 1 << 63   -1 )
+}
 
 // TODO : (implements the test)
 
 func TestRandom(t *testing.T){
 
-
+	println(math.MaxInt64)
 
 	var x int64 = 1000		// 1 * 8^3 + 7 * 8^2 + 5 * 8
 	println(strconv.FormatInt(x , 8),"----------")
