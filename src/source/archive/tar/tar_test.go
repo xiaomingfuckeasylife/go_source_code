@@ -9,10 +9,17 @@ import (
 	"math"
 )
 
+func Test20170808(t *testing.T){
+
+	
+
+}
+
 
 func Test20170807(t *testing.T){
 	//println(math.MaxInt64 ) // 9223372036854775807
 	//println( 1 << 63   -1 )
+
 }
 
 // TODO : (implements the test)
