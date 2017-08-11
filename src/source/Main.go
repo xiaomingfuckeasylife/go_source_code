@@ -1,9 +1,16 @@
 package main
 
 import (
+	"fmt"
 )
 
 func main(){
+	b := []byte(" i am ")
+	fmt.Printf("%s",b[:1])
+	//println(3 << 2)
+	//
+	//const dict = `<?xml version="1.0"?>` + `<book>` + `<data>` +`<meta name="` + `" content="`
+	//println(dict)
 	//sc := bufio.NewScanner(os.Stdin)
 	//
 	//for sc.Scan() {
@@ -37,5 +44,5 @@ func main(){
 	//time.Sleep(10 * time.Second)
 	//println("q")
 	//println(<-c)
-
+	println("hello,world")
 }
