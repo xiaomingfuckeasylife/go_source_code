@@ -1,12 +1,20 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 )
 
 func main(){
-	b := []byte(" i am ")
-	fmt.Printf("%s",b[:1])
+
+	type test struct {
+		a string
+	}
+	t := test{
+		a :"test",
+	}
+	println(t)
+	//b := []byte(" i am ")
+	//fmt.Printf("%s",b[:1])
 	//println(3 << 2)
 	//
 	//const dict = `<?xml version="1.0"?>` + `<book>` + `<data>` +`<meta name="` + `" content="`
